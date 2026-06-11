@@ -1,0 +1,12 @@
+{
+  "name": "plan",
+  "displayName": "Plan",
+  "version": "0.1.0",
+  "description": "A coarse, resumable program layer that sequences Phases above your change-management workflow (OpenSpec by default). The epic layer your change tool doesn't have.",
+  "author": {
+    "name": "Matt McCray",
+    "email": "matthew.mccray@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["planning", "roadmap", "openspec", "workflow", "phases"]
+}

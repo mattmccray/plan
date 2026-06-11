@@ -1,0 +1,15 @@
+{
+  "name": "plan-tools",
+  "owner": {
+    "name": "Matt McCray",
+    "email": "matthew.mccray@gmail.com"
+  },
+  "description": "Composable, AI-first development workflow tools.",
+  "plugins": [
+    {
+      "name": "plan",
+      "source": "./",
+      "description": "A coarse, resumable program layer that sequences Phases above your change-management workflow (OpenSpec by default)."
+    }
+  ]
+}
