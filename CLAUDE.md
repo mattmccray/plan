@@ -23,10 +23,12 @@ drift.
 - `skills/plan-workflow/SKILL.md` — the single source of truth for behavior: the
   model + the procedures every command delegates to. Auto-triggers on
   plan-related natural language.
-- `commands/*.md` — six thin verbs (`new`, `status`, `next`, `advance`,
-  `archive`, `validate`) that inject context and delegate to the workflow skill.
+- `commands/*.md` — five thin verbs (`create`, `status`, `next`, `archive`,
+  `validate`) that inject context and delegate to the workflow skill. `next` is
+  the stateful driver that carries the plan from change to change and phase to
+  phase (it absorbed the old `advance`).
 - `templates/PLAN.md` — the prose template scaffolded into a consuming project by
-  `/plan:new`.
+  `/plan:create`.
 
 ## Conventions
 

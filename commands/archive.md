@@ -10,7 +10,7 @@ Archive the completed **Plan**. Follow the **archive** procedure in the
 2. In `PLAN.md`, set **Status: complete** and stamp the **Completed** date.
 3. Move it to `plans/archive/YYYY-MM-DD-<program>.md` (date = completion date,
    suffix = program identity). Create `plans/archive/` if needed.
-4. Offer to chain into `/plan:new` for the next program.
+4. Offer to chain into `/plan:create` for the next program.
 
 ## Active plan
 

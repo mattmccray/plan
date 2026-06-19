@@ -7,12 +7,12 @@ Validate the **Plan** against reality. Follow the **validate** procedure in the
 
 - every `Carried by: <name>` resolves to a real change (active or archived);
 - every `[x]` phase's change is archived (not still active);
-- every archived change is reflected by a `[x]`/`landed` phase (no silent drift);
+- every archived change is reflected by a done (`[x]`) phase (no silent drift);
 - sources-of-truth links resolve.
 
 ## Active plan
 
-!`test -f PLAN.md && cat PLAN.md || echo "No PLAN.md found. Run /plan:new to start one."`
+!`test -f PLAN.md && cat PLAN.md || echo "No PLAN.md found. Run /plan:create to start one."`
 
 ## Change engine state (OpenSpec)
 

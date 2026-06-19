@@ -30,24 +30,28 @@ To develop against the live repo instead, see [DEV.md](DEV.md).
 ## Quick start
 
 ```
-/plan:new "Minerva v3"     # discuss the program, scaffold PLAN.md
-/plan:next                 # find the next phase, hand off to opsx:propose
-/plan:advance              # land a phase: flip the checkbox, stamp status
+/plan:create "Minerva v3"  # discuss the program, scaffold PLAN.md
+/plan:next                 # the driver: carry the plan to its next state
 /plan:status               # where are we? (plan ✕ real change state)
 /plan:archive              # finalize a complete plan → plans/archive/
 ```
 
+`/plan:next` is the workhorse — run it again and again to walk a phase from
+*propose → apply → archive*, then auto-close the phase and move to the next. It
+loops through bookkeeping on its own and stops to confirm before real work,
+keeping `PLAN.md` in sync as it goes.
+
 You can also just talk to it — *"let's start a new plan"*, *"where are we?"*,
-*"what's next?"* — and the `plan-workflow` skill routes to the right procedure.
+*"what's next?"*, *"land this phase"* — and the `plan-workflow` skill routes to
+the right procedure.
 
 ## Commands
 
 | Command | Description |
 | --- | --- |
-| `/plan:new` | Discuss a program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
+| `/plan:create` | Discuss a program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
 | `/plan:status` | Show current phase, phase states, carrying-change states, and what's next |
-| `/plan:next` | Identify the next phase/deliverable and hand off to the change engine |
-| `/plan:advance` | Mark a deliverable/phase done — flip the checkbox, stamp status + date |
+| `/plan:next` | **The driver** — read where things stand, then carry the plan to its next state (propose/apply/archive a change, close a phase, advance) |
 | `/plan:archive` | Finalize a complete plan → move to `plans/archive/`, optionally start the next |
 | `/plan:validate` | Drift check: plan checkboxes ↔ real change state |
 

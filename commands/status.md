@@ -9,7 +9,7 @@ Surface any drift you notice but don't fix it unasked.
 
 ## Active plan
 
-!`test -f PLAN.md && head -40 PLAN.md || echo "No PLAN.md found. Run /plan:new to start one."`
+!`test -f PLAN.md && head -40 PLAN.md || echo "No PLAN.md found. Run /plan:create to start one."`
 
 ## Change engine state (OpenSpec)
 

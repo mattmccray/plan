@@ -22,7 +22,7 @@ it to `plans/archive/`.
 - A phase is **done** only when its acceptance bar is met *and* the cross-cutting
   invariants below still hold.
 - Each phase names the **Change(s)** that carry it, with a lifecycle state:
-  *not yet proposed → proposed → applying → landed → archived.*
+  *not yet proposed → proposed → applied → archived.*
 
 ## Sequencing strategy (decided)
 

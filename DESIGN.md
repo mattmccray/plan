@@ -84,8 +84,8 @@ These are what make the pattern work. They are the spec the skill enforces.
 - **R2 — Point, don't restate.** The plan links to the sources of truth (PRD,
   specs, design docs) and never re-explains them.
 - **R3 — Every phase maps to changes.** Each phase names the change(s) that carry
-  it, each with a lifecycle state: *not yet proposed → proposed → applying →
-  landed → archived.*
+  it, each with a lifecycle state: *not yet proposed → proposed → applied →
+  archived.*
 - **R4 — Status reflects reality.** Checkboxes and status lines are kept current
   as work lands. The plan is resumable: anyone (human or agent) can read it and
   know exactly where things stand.
@@ -125,9 +125,10 @@ lifecycle, and it declares the engine (the seam, below):
 
 Plan does not hard-code OpenSpec. The plan **declares** its change engine in the
 header (`Engine: OpenSpec`), and the skill drives whatever is declared, defaulting
-to OpenSpec. To advance a phase, the skill proposes a unit of work via the
-declared engine. If a project ever uses a different change tool, it declares that
-instead and the same skill adapts. **The coupling lives in data, not code.**
+to OpenSpec. To carry a phase, the `next` driver proposes / applies / archives a
+unit of work via the declared engine. If a project ever uses a different change
+tool, it declares that instead and the same skill adapts. **The coupling lives in
+data, not code.**
 
 ## Plan lifecycle
 
@@ -137,7 +138,7 @@ instead and the same skill adapts. **The coupling lives in data, not code.**
       │  plan:archive  (when the program completes)
       ▼
    plans/archive/YYYY-MM-DD-<program>.md   (frozen historical record)
-      │  plan:new  (optionally carrying forward unfinished phases)
+      │  plan:create  (optionally carrying forward unfinished phases)
       ▼
    PLAN.md  (a fresh active plan for the next program: v3.1, v4, …)
 ```
@@ -156,21 +157,63 @@ instead and the same skill adapts. **The coupling lives in data, not code.**
 
 ## Commands
 
-Six verbs, designed to feel parallel to `opsx:*` (note `archive` is the shared
-word at a higher altitude):
+**Few verbs; the skill guides the path.** Five commands, with `/plan:next` doing
+the heavy lifting as a stateful driver:
 
 | Command | Does |
 | --- | --- |
-| `/plan:new` | discuss the program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
+| `/plan:create` | discuss the program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
 | `/plan:status` | derived progress: current phase, phase states, carrying-change states, what's next |
-| `/plan:next` | identify the next phase/deliverable and hand off to the change engine (`opsx:propose`) |
-| `/plan:advance` | mark a deliverable/phase done — flip the checkbox, stamp status + date, reconcile |
-| `/plan:archive` | finalize a complete plan → move to `plans/archive/`, optionally chain into `/plan:new` |
+| `/plan:next` | **the driver** — read where things stand, then carry the plan to its next state: propose/apply/archive the right change, close a finished phase, advance to the next |
+| `/plan:archive` | finalize a complete plan → move to `plans/archive/`, optionally chain into `/plan:create` |
 | `/plan:validate` | drift check: plan checkboxes ↔ real change state (`openspec list`) |
 
+`/plan:next` absorbs what used to be two confusing verbs (`next` + `advance`):
+there is now one driver, not a *begin* verb and a *finish* verb that read alike.
+
 Natural language reaches the same procedures via the `plan-workflow` skill — e.g.
-*"let's start a new plan"*, *"where are we?"*, *"what's next?"* — so the commands
-are explicit doors, not the only way in.
+*"let's start a new plan"*, *"where are we?"*, *"what's next?"*, *"land this
+phase"* — so the commands are explicit doors, not the only way in.
+
+### The `next` driver
+
+`/plan:next` is **stateful and resumable**: it derives everything it needs from
+`PLAN.md` plus the change engine, so it works across sessions and from subagents.
+One invocation:
+
+1. **Locates** the active `PLAN.md` (if none, offers `/plan:create` and stops).
+2. **Reads state** — parses `PLAN.md` (phases, checkboxes, `Carried by:` +
+   per-change lifecycle state) and queries the engine for ground truth
+   (`openspec list --json`; `openspec status <change>` for active changes).
+3. **Lightly reconciles** obvious drift it sees while driving (e.g. the engine
+   reports a change archived but the plan still says `applied`). Deep
+   reconciliation remains `/plan:validate`'s job.
+4. **Finds position** — the first phase not `[x]`, and within it the first
+   carrying change not yet `archived`.
+5. **Performs the next transition** for that change:
+
+   | Change state | Transition | Mode |
+   | --- | --- | --- |
+   | not yet proposed | offer **propose** vs **explore**; hand the chosen `opsx:*` to a subagent | confirm — a decision that starts work |
+   | proposed | **apply** via a subagent | confirm — real work |
+   | applied (engine reports complete) | **archive** via a subagent | auto-chain — mechanical cleanup |
+   | archived, more changes in phase | advance to the next change → propose… | auto-chain, then stop at the propose decision |
+   | archived, last change in phase | **close the phase**: flip `[x]`, stamp Status + date + a one-line outcome | auto-chain |
+   | all phases `[x]` | suggest `/plan:archive` | confirm |
+
+6. **Loops until it needs you** — auto-chains cheap bookkeeping transitions
+   (archive a completed change, close a phase, advance to the next), but **stops
+   to confirm** before real work (propose/apply) or any decision, always showing
+   the action and the command it will run first.
+7. **Persists after each transition** — updates the change's lifecycle state,
+   checkbox, and Status line in `PLAN.md` so any later session resumes cleanly;
+   records any **divergence** (R5) surfaced while landing.
+
+**Subagent by default.** Engine handoffs run in a subagent to keep the driver
+session light. The driver passes the engine command + change name + seed context
+(phase goal, acceptance bar, sources of truth, the suggested change notes from
+`PLAN.md`); the subagent runs the `opsx:*` command and returns a concise summary +
+resulting state, which the driver writes back into `PLAN.md`.
 
 ## Composable principles (the constellation)
 

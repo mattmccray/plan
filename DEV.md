@@ -23,12 +23,12 @@ After editing skills/commands, reload:
 In any project, run:
 
 ```
-/plan:new "Test Program"
+/plan:create "Test Program"
 ```
 
-The `new` command should guard any existing `PLAN.md`, discuss the program, and
-scaffold a new `PLAN.md` from `templates/PLAN.md`. Then try `/plan:status`,
-`/plan:next`, and `/plan:validate`.
+The `create` command should guard any existing `PLAN.md`, discuss the program,
+and scaffold a new `PLAN.md` from `templates/PLAN.md`. Then drive it with
+`/plan:next` (the stateful driver), and try `/plan:status` and `/plan:validate`.
 
 Natural language should also trigger the workflow skill — e.g. "let's start a new
 plan" or "where are we on the plan?".
@@ -39,7 +39,7 @@ plan" or "where are we on the plan?".
 plan/
 ├── .claude-plugin/{plugin.json, marketplace.json}
 ├── skills/plan-workflow/SKILL.md
-├── commands/{new,status,next,advance,archive,validate}.md
+├── commands/{create,status,next,archive,validate}.md
 ├── templates/PLAN.md
 ├── DESIGN.md      # ratified model — source of truth
 ├── CLAUDE.md      # repo conventions

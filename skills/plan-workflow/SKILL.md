@@ -29,7 +29,7 @@ Linking verb: **carry** — "a phase is carried by changes."
   a task list into the plan.
 - **R2 Point, don't restate** — link sources of truth; never re-explain them.
 - **R3 Every phase maps to changes** — name the change(s), each with a lifecycle
-  state: *not yet proposed → proposed → applying → landed → archived.*
+  state: *not yet proposed → proposed → applied → archived.*
 - **R4 Status reflects reality** — keep checkboxes/status current so the plan is
   resumable.
 - **R5 Divergences recorded, never silent** — write deviations inline, with
@@ -41,8 +41,16 @@ Linking verb: **carry** — "a phase is carried by changes."
 
 The plan's header declares its change engine (`Engine: OpenSpec`). Drive whatever
 is declared; **default to OpenSpec** (`openspec/changes/`, the `opsx:*`
-commands). To carry a phase, propose a change via that engine. Never hard-assume
-OpenSpec is the only option, but do default to it.
+commands). To carry a phase, propose / apply / archive a change via that engine —
+this is what the **next** driver does. Never hard-assume OpenSpec is the only
+option, but do default to it.
+
+**Engine handoffs run in a subagent by default.** When the driver invokes an
+`opsx:*` command, dispatch it to a subagent seeded with the change name + context
+(phase goal, acceptance bar, sources of truth, the change notes from `PLAN.md`).
+The subagent returns a concise summary + resulting state; record that back into
+`PLAN.md`. This keeps the driver session light and lets `next` run from another
+agent.
 
 ## Locating things
 
@@ -58,9 +66,11 @@ OpenSpec is the only option, but do default to it.
 ## Procedures
 
 Each `plan:*` command runs the matching procedure. Natural language routes here
-too (e.g. "let's start a new plan" → **new**; "where are we?" → **status**).
+too: "let's start a new plan" → **create**; "where are we?" → **status**; "what's
+next?" → **status** (to report) or **next** (to drive); "land this phase" /
+"advance the plan" / "do the next thing" → **next**.
 
-### new — start a new plan
+### create — start a new plan
 
 1. **Guard the active plan.** If `PLAN.md` exists and has unfinished phases
    (`[ ]`/`[~]`), STOP and confirm intent. Offer:
@@ -86,22 +96,46 @@ too (e.g. "let's start a new plan" → **new**; "where are we?" → **status**).
    change, and **what's next**. Surface any drift you notice (see **validate**),
    but don't fix it unasked.
 
-### next — what to build next
+### next — the driver (carry the plan to its next state)
 
-1. From `PLAN.md`, find the next unstarted deliverable/phase respecting dependency
-   order.
-2. Summarize what it is and its acceptance bar, then **hand off to the change
-   engine** to carry it — for OpenSpec, propose the change (`opsx:propose`), and
-   record the change name + `proposed` state on that phase in `PLAN.md`.
+`next` is the workhorse: read where things stand, then perform the single next
+transition — propose/apply/archive the right change, close a finished phase, or
+advance to the next. It absorbs the old separate "advance/land" verb. It is
+**stateful and resumable**: derive everything from `PLAN.md` + the engine, so it
+runs across sessions and from subagents.
 
-### advance — land a deliverable/phase
+1. **Locate** the active `PLAN.md`. If none exists, say so and offer **create**;
+   stop.
+2. **Read state.** Parse `PLAN.md` (phases, checkboxes, `Carried by:` + each
+   change's lifecycle state). Query the engine for ground truth: `openspec list
+   --json`, and `openspec status <change>` for active changes.
+3. **Lightly reconcile** obvious drift you see while driving (e.g. the engine
+   reports a change archived but the plan still says `applied` — fix the plan).
+   Leave deep reconciliation to **validate**.
+4. **Find position.** The first phase not `[x]`, and within it the first carrying
+   change not yet `archived`, respecting dependency order.
+5. **Perform the next transition** for that change, **always showing the action +
+   the command you'll run, and confirming before real work or any decision:**
 
-1. Confirm the work actually landed (the carrying change applied/archived; tests
-   green; acceptance met; invariants R6 still hold).
-2. Update `PLAN.md`: flip the checkbox(es) to `[x]`, update the phase **Status**
-   with a date and a one-line outcome, and set the carrying change's lifecycle
-   state (e.g. `landed` or `archived`).
-3. Record any **divergence** (R5) discovered while landing.
+   | Change state | Transition | Mode |
+   | --- | --- | --- |
+   | not yet proposed | offer **propose** vs **explore**; dispatch the chosen `opsx:*` to a subagent | **confirm** (decision; starts work) |
+   | proposed | **apply** — dispatch `opsx:apply` to a subagent | **confirm** (real work) |
+   | applied (engine reports complete) | **archive** — dispatch `opsx:archive` | auto-chain (mechanical cleanup) |
+   | archived, more changes in phase | advance to the next change → propose… | auto-chain, then stop at the propose decision |
+   | archived, last change in phase | **close the phase**: flip `[x]`, stamp **Status** with date + one-line outcome | auto-chain |
+   | all phases `[x]` | suggest **archive** (the plan) | **confirm** |
+
+   Before closing a phase, confirm acceptance is met and invariants (R6) still
+   hold. Record any **divergence** (R5) surfaced while landing.
+6. **Loop until it needs you.** Keep performing auto-chain bookkeeping transitions
+   (archive a completed change, close a phase, advance to the next), but **stop
+   and confirm** at the next propose/apply decision or whenever input is needed.
+7. **Persist after each transition.** Update the change's lifecycle state,
+   checkbox, and **Status** line in `PLAN.md` so the plan stays the resumable
+   source of truth.
+
+Dispatch every engine handoff to a subagent by default (see **The engine seam**).
 
 ### archive — finalize a completed plan
 
@@ -111,7 +145,7 @@ too (e.g. "let's start a new plan" → **new**; "where are we?" → **status**).
 3. Move it to `plans/archive/YYYY-MM-DD-<program>.md` (creating `plans/archive/`
    if needed). The date is the completion date; the suffix is the program
    identity (e.g. `2026-06-11-minerva-v3.md`).
-4. Offer to chain into **new** for the next program.
+4. Offer to chain into **create** for the next program.
 
 ### validate — drift check (R3/R4)
 
@@ -119,7 +153,7 @@ Reconcile the plan against real change state and report mismatches; fix only wha
 the user approves. Check:
 - every `Carried by: <name>` resolves to a real change (active or archived);
 - every `[x]` phase's change is archived (not still active);
-- every archived change is reflected by a `[x]`/`landed` phase (no silent drift);
+- every archived change is reflected by a done (`[x]`) phase (no silent drift);
 - sources-of-truth links resolve.
 
 This runs as an agent-driven check today (read `PLAN.md` + `openspec list`); a
