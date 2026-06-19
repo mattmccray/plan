@@ -5,8 +5,9 @@ description: The driver — carry the plan to its next state (propose/apply/arch
 Drive the **Plan** forward. Follow the **next** procedure in the `plan-workflow`
 skill — the stateful driver:
 
-1. **Read state** from `PLAN.md` + the change engine (`openspec list --json`,
-   `openspec status <change>`); lightly reconcile obvious drift.
+1. **Read state** from `PLAN.md` + the change engine via `openspec list --json`
+   (per-change `status` + `completedTasks`/`totalTasks`; absent ⇒ archived);
+   lightly reconcile obvious drift.
 2. **Find position** — the first phase not `[x]`, and within it the first carrying
    change not yet `archived`.
 3. **Perform the next transition**, showing the action + the command and

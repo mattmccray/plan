@@ -107,8 +107,13 @@ runs across sessions and from subagents.
 1. **Locate** the active `PLAN.md`. If none exists, say so and offer **create**;
    stop.
 2. **Read state.** Parse `PLAN.md` (phases, checkboxes, `Carried by:` + each
-   change's lifecycle state). Query the engine for ground truth: `openspec list
-   --json`, and `openspec status <change>` for active changes.
+   change's lifecycle state). Query the engine for ground truth with `openspec
+   list --json` — it reports each active change's `status`
+   (`in-progress`/`complete`) and `completedTasks`/`totalTasks`. A change present
+   with work pending is **proposed**; `status: complete` (all tasks done) is
+   **applied** and ready to archive; a change absent from the list (moved under
+   `openspec/changes/archive/`) is **archived**. For per-change artifact detail
+   use `openspec status --change <id> --json`.
 3. **Lightly reconcile** obvious drift you see while driving (e.g. the engine
    reports a change archived but the plan still says `applied` — fix the plan).
    Leave deep reconciliation to **validate**.

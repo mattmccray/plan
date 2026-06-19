@@ -183,8 +183,10 @@ One invocation:
 
 1. **Locates** the active `PLAN.md` (if none, offers `/plan:create` and stops).
 2. **Reads state** — parses `PLAN.md` (phases, checkboxes, `Carried by:` +
-   per-change lifecycle state) and queries the engine for ground truth
-   (`openspec list --json`; `openspec status <change>` for active changes).
+   per-change lifecycle state) and queries the engine for ground truth via
+   `openspec list --json` (each active change's `status` +
+   `completedTasks`/`totalTasks`; absent from the list ⇒ archived). Per-change
+   detail is `openspec status --change <id> --json`.
 3. **Lightly reconciles** obvious drift it sees while driving (e.g. the engine
    reports a change archived but the plan still says `applied`). Deep
    reconciliation remains `/plan:validate`'s job.
