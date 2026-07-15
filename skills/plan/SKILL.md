@@ -85,6 +85,16 @@ commands. Installed as a skill on any other agent, there are no slash commands �
 you're activated by the triggers above, then dispatch here just the same. "what's
 next?" reports via **status**; "advance/land it" drives via **next**.
 
+**First, establish current state.** Before running any procedure, read the ground
+truth so you're never reasoning about a stale plan:
+
+1. `PLAN.md` at the repo root (its presence/absence and contents), and
+2. the change engine's state — for OpenSpec, `openspec list --json` (each active
+   change's `status` + `completedTasks`/`totalTasks`).
+
+(As the Plan plugin these are pre-loaded into the command's context; as a bare
+skill, gather them yourself first — it's the same state either way.)
+
 ### create — start a new plan
 
 1. **Guard the active plan.** If `PLAN.md` exists and has unfinished phases
