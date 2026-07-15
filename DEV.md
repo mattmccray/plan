@@ -1,7 +1,9 @@
 # Testing / Dev
 
-Plan is a self-contained Claude Code plugin (the repo is its own marketplace via
-`.claude-plugin/marketplace.json`). To test the live repo without publishing:
+Plan ships as an [Agent Skill](https://agentskills.io) (`skills/plan/`) with an
+optional Claude Code plugin wrapper (the repo is its own marketplace via
+`.claude-plugin/marketplace.json`, and `commands/*.md` add the `/plan:*` slash
+commands). To test the live repo without publishing:
 
 ## Local install
 
@@ -47,7 +49,14 @@ plan/
 
 ## Publish
 
-Push to GitHub; users install with:
+Push to GitHub. Users install the skill into any skills-compatible agent with:
+
+```
+npx skills add <github-user>/plan
+```
+
+Claude Code users can instead install the plugin (adds the `/plan:*` slash
+commands):
 
 ```
 /plugin marketplace add <github-user>/plan

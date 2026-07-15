@@ -4,10 +4,14 @@ Guidance for working in this repository.
 
 ## What this is
 
-**Plan** is a Claude Code plugin: the program/epic layer above a
-change-management workflow (OpenSpec by default). There is no runtime, no
-dependencies, and no build step — everything is plain markdown plus two JSON
-manifests.
+**Plan** is an [Agent Skill](https://agentskills.io) (`skills/plan/`) — the
+program/epic layer above a change-management workflow (OpenSpec by default) —
+packaged with an optional Claude Code plugin wrapper (`.claude-plugin/` +
+`commands/`) that adds the `/plan:*` slash commands. The skill is the product;
+the plugin is one distribution of it. Primary install is the `skills` CLI
+(`npx skills add mattmccray/plan`); Claude Code users can install the plugin
+instead for slash commands. There is no runtime, no dependencies, and no build
+step — everything is plain markdown plus two JSON manifests.
 
 The ratified model — vocabulary, discipline rules (R1–R7), artifact shape, and
 lifecycle — lives in [DESIGN.md](DESIGN.md). **DESIGN.md is the source of truth.**

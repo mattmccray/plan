@@ -173,7 +173,10 @@ there is now one driver, not a *begin* verb and a *finish* verb that read alike.
 
 Natural language reaches the same procedures via the `plan` skill — e.g.
 *"let's start a new plan"*, *"where are we?"*, *"what's next?"*, *"land this
-phase"* — so the commands are explicit doors, not the only way in.
+phase"* — so the commands are explicit doors, not the only way in. The `/plan:*`
+slash commands are the **Claude Code plugin** surface; installed as a bare skill
+on any other agent, the same five procedures are reached by intent alone (Agent
+Skills are model-invoked, not slash-triggered).
 
 ### The `next` driver
 

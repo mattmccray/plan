@@ -1,6 +1,6 @@
 # Plan
 
-A coarse, resumable **program layer** for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — the epic/roadmap layer that sits *above* a change-management workflow (OpenSpec by default).
+A coarse, resumable **program layer** for AI coding agents — the epic/roadmap layer that sits *above* a change-management workflow (OpenSpec by default). Ships as an [Agent Skill](https://agentskills.io) (works in any skills-compatible agent) with an optional [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that adds `/plan:*` slash commands.
 
 Tools like OpenSpec take a single unit of work from proposal → implementation → archive, but have **no concept of a program**: a phased roadmap spanning many changes. Plan fills that gap with one human-readable file — `PLAN.md` — that sequences **Phases**, each **carried by** one or more **Changes**.
 
@@ -18,42 +18,60 @@ needed to resume lives in `PLAN.md` itself.
 
 ## Install
 
-Plan is a single-repo Claude Code plugin. The repo is its own marketplace:
+Plan is an [Agent Skill](https://agentskills.io) — install it into any
+skills-compatible agent (Claude Code, opencode, Codex, Gemini CLI, Cursor, pi, …)
+with the [`skills`](https://github.com/vercel-labs/skills) CLI:
+
+```
+npx skills add mattmccray/plan
+```
+
+That installs the `plan` skill. Trigger it with natural language —
+*"let's start a new plan"*, *"where are we?"*, *"what's next?"*, *"land this
+phase"* — or a bare verb (`plan next`, `plan status`); the skill routes to the
+right procedure. (Skills are activated by intent, not slash commands — that's the
+[Agent Skills](https://agentskills.io) model.)
+
+### Claude Code users: the plugin
+
+On Claude Code you can instead install Plan as a **plugin**, which adds real
+`/plan:*` slash commands on top of the same skill. The repo is its own
+marketplace:
 
 ```
 /plugin marketplace add mattmccray/plan     # or the full GitHub URL
 /plugin install plan@plan-tools
 ```
 
-To develop against the live repo instead, see [DEV.md](DEV.md).
+To develop against the live repo, see [DEV.md](DEV.md).
 
 ## Quick start
 
-```
-/plan:create "Minerva v3"  # discuss the program, scaffold PLAN.md
-/plan:next                 # the driver: carry the plan to its next state
-/plan:status               # where are we? (plan ✕ real change state)
-/plan:archive              # finalize a complete plan → plans/archive/
-```
+Talk to it, or — on the Claude Code plugin — use the slash commands. Both do the
+same thing:
 
-`/plan:next` is the workhorse — run it again and again to walk a phase from
+| Do this | Natural language | Plugin command |
+| --- | --- | --- |
+| Start a plan | *"start a new plan for Minerva v3"* | `/plan:create "Minerva v3"` |
+| Carry it forward | *"what's next?"* / *"land this phase"* | `/plan:next` |
+| Check status | *"where are we?"* | `/plan:status` |
+| Finalize | *"the plan's done"* | `/plan:archive` |
+| Drift check | *"does the plan match reality?"* | `/plan:validate` |
+
+**next** is the workhorse — invoke it again and again to walk a phase from
 *propose → apply → archive*, then auto-close the phase and move to the next. It
 loops through bookkeeping on its own and stops to confirm before real work,
 keeping `PLAN.md` in sync as it goes.
 
-You can also just talk to it — *"let's start a new plan"*, *"where are we?"*,
-*"what's next?"*, *"land this phase"* — and the `plan` skill routes to
-the right procedure.
+## Procedures
 
-## Commands
-
-| Command | Description |
+| Procedure | Description |
 | --- | --- |
-| `/plan:create` | Discuss a program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
-| `/plan:status` | Show current phase, phase states, carrying-change states, and what's next |
-| `/plan:next` | **The driver** — read where things stand, then carry the plan to its next state (propose/apply/archive a change, close a phase, advance) |
-| `/plan:archive` | Finalize a complete plan → move to `plans/archive/`, optionally start the next |
-| `/plan:validate` | Drift check: plan checkboxes ↔ real change state |
+| **create** | Discuss a program, then scaffold a fresh `PLAN.md` (guards an incomplete active plan first) |
+| **status** | Show current phase, phase states, carrying-change states, and what's next |
+| **next** | **The driver** — read where things stand, then carry the plan to its next state (propose/apply/archive a change, close a phase, advance) |
+| **archive** | Finalize a complete plan → move to `plans/archive/`, optionally start the next |
+| **validate** | Drift check: plan checkboxes ↔ real change state |
 
 ## Core concepts
 
@@ -80,8 +98,8 @@ Plan does not hard-code OpenSpec: the plan **declares** its change engine in its
 header, and the workflow drives whatever is declared (defaulting to OpenSpec). It
 is one tool in a constellation of single-purpose, AI-first workflow tools — adopt
 it alongside a change engine and (optionally) an issue inbox, picking only what a
-project needs. No central store, no dispatcher; each tool owns its own file and
-its own slash namespace.
+project needs. No central store, no dispatcher; each tool owns its own file (and,
+on Claude Code, its own slash namespace).
 
 See [DESIGN.md](DESIGN.md) for the full ratified model.
 

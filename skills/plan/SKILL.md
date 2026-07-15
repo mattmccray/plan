@@ -67,10 +67,23 @@ agent.
 
 ## Procedures
 
-Each `plan:*` command runs the matching procedure. Natural language routes here
-too: "let's start a new plan" → **create**; "where are we?" → **status**; "what's
-next?" → **status** (to report) or **next** (to drive); "land this phase" /
-"advance the plan" / "do the next thing" → **next**.
+Five procedures, invoked five ways — all equivalent. However the user reached you
+— a Claude Code plugin command (`/plan:next`), a bare verb (`plan next`, or just
+`next` once this skill is active), or natural language — map the intent to the
+matching procedure below and run it:
+
+| Verb | Invocations that dispatch here | Natural-language triggers |
+| --- | --- | --- |
+| **create** | `/plan:create`, `plan create`, `plan new` | "let's start a new plan", "new program" |
+| **status** | `/plan:status`, `plan status` | "where are we?", "plan status" |
+| **next** | `/plan:next`, `plan next` | "what's next?" (to drive), "land/advance this phase", "do the next thing" |
+| **archive** | `/plan:archive`, `plan archive` | "finalize the plan", "the plan's done" |
+| **validate** | `/plan:validate`, `plan validate` | "does the plan match reality?", "check for drift" |
+
+Only Claude Code (as the Plan **plugin**) exposes these as real `/plan:*` slash
+commands. Installed as a skill on any other agent, there are no slash commands —
+you're activated by the triggers above, then dispatch here just the same. "what's
+next?" reports via **status**; "advance/land it" drives via **next**.
 
 ### create — start a new plan
 
