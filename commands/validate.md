@@ -10,12 +10,12 @@ Validate the **Plan** against reality. Follow the **validate** procedure in the
 - every archived change is reflected by a done (`[x]`) phase (no silent drift);
 - sources-of-truth links resolve.
 
-## Active plan
+## Drift report
 
-!`test -f PLAN.md && cat PLAN.md || echo "No PLAN.md found. Run /plan:create to start one."`
+`plan-state --validate` reconciles the plan's checkboxes/lifecycle against real
+engine state and lists every mismatch (`drift:` lines); it exits nonzero when
+drift exists. Report those lines; fix only what the user approves. If it's blank
+or errors, fall back to reading `PLAN.md` + `openspec list --json` yourself and
+run the four checks above by hand (see the skill's degradation rule).
 
-## Change engine state (OpenSpec)
-
-!`openspec list --json 2>/dev/null || echo "(openspec not available)"`
-
-!`echo "--- active change dirs ---"; ls openspec/changes 2>/dev/null | grep -v '^archive$' || true; echo "--- archived change dirs ---"; ls openspec/changes/archive 2>/dev/null || true`
+!`node "${CLAUDE_PLUGIN_ROOT}/skills/plan/bin/plan-state.mjs" --validate 2>/dev/null || echo "(plan-state unavailable — read PLAN.md + 'openspec list --json' directly)"`

@@ -63,6 +63,40 @@ agent.
 - Change state (OpenSpec): `openspec list --json`, and the
   `openspec/changes/` + `openspec/changes/archive/` directories.
 
+### The state script (read-only digest)
+
+A zero-dependency Node script does the deterministic read+classify for you so you
+don't re-derive it from raw files each time. It ships alongside this skill at
+`bin/plan-state.mjs` (as the plugin: `${CLAUDE_PLUGIN_ROOT}/skills/plan/bin/plan-state.mjs`).
+Run it from the repo root — it works on any agent with a shell, on macOS/Linux/Windows:
+
+```
+node <skill-dir>/bin/plan-state.mjs            # the digest
+node <skill-dir>/bin/plan-state.mjs --validate  # drift-focused; exits nonzero on drift
+```
+
+It **only reads** — it parses `PLAN.md`, joins it against the declared engine's
+ground truth, and prints a compact digest. It never edits anything; you still own
+every transition and write. The digest shape:
+
+```
+PLAN: <program> · status: active · engine: OpenSpec
+phase → Phase 2 of 5 "Wire the driver" [~]
+phases:
+  [x] 0 Foundations      scaffold-core — archived
+  [~] 2 Wire the driver  driver-loop — proposed (3/8)
+  [ ] 3 Validate path    validate-cli — not yet proposed
+next: apply driver-loop  (mode: confirm)
+drift: none
+```
+
+Read the `phase →`, per-change lifecycle states, and the `next:` recommendation;
+that is the computed state you'd otherwise derive by hand. **Degrade gracefully:**
+if the script is missing, Node is unavailable, or the output is blank/garbled,
+fall back to reading `PLAN.md` + `openspec list --json` directly and classify by
+hand (present with work pending ⇒ *proposed*; `status: complete` ⇒ *applied*;
+absent ⇒ *archived*). The digest is advisory ground-truthing, never a hard gate.
+
 ---
 
 ## Procedures
@@ -85,15 +119,19 @@ commands. Installed as a skill on any other agent, there are no slash commands �
 you're activated by the triggers above, then dispatch here just the same. "what's
 next?" reports via **status**; "advance/land it" drives via **next**.
 
-**First, establish current state.** Before running any procedure, read the ground
-truth so you're never reasoning about a stale plan:
+**First, establish current state.** Before running any procedure, get the ground
+truth so you're never reasoning about a stale plan. The fastest path is the state
+script (see **The state script** above): `node <skill-dir>/bin/plan-state.mjs`
+prints the digest — current phase, per-change lifecycle states, the recommended
+next action, and drift — computed from:
 
 1. `PLAN.md` at the repo root (its presence/absence and contents), and
 2. the change engine's state — for OpenSpec, `openspec list --json` (each active
    change's `status` + `completedTasks`/`totalTasks`).
 
-(As the Plan plugin these are pre-loaded into the command's context; as a bare
-skill, gather them yourself first — it's the same state either way.)
+(As the Plan plugin the digest is pre-loaded into the command's context; as a
+bare skill, run the script yourself first. If the script is unavailable, read the
+two sources directly — same state either way.)
 
 ### create — start a new plan
 
@@ -132,20 +170,21 @@ runs across sessions and from subagents.
 
 1. **Locate** the active `PLAN.md`. If none exists, say so and offer **create**;
    stop.
-2. **Read state.** Parse `PLAN.md` (phases, checkboxes, `Carried by:` + each
-   change's lifecycle state). Query the engine for ground truth with `openspec
-   list --json` — it reports each active change's `status`
-   (`in-progress`/`complete`) and `completedTasks`/`totalTasks`. A change present
-   with work pending is **proposed**; `status: complete` (all tasks done) is
-   **applied** and ready to archive; a change absent from the list (moved under
-   `openspec/changes/archive/`) is **archived**. For per-change artifact detail
-   use `openspec status --change <id> --json`.
-3. **Lightly reconcile** obvious drift you see while driving (e.g. the engine
-   reports a change archived but the plan still says `applied` — fix the plan).
-   Leave deep reconciliation to **validate**.
-4. **Find position.** The first phase not `[x]`, and within it the first carrying
-   change not yet `archived`, respecting dependency order.
-5. **Perform the next transition** for that change, **always showing the action +
+2. **Read state — the script does this for you.** Run
+   `node <skill-dir>/bin/plan-state.mjs` (or read the digest the command
+   pre-loaded). It has already parsed `PLAN.md`, joined it against the engine, and
+   classified each change (*proposed / applied / archived / not yet proposed*),
+   found the current position, and printed the recommended `next:` action + mode.
+   If the script is unavailable, classify by hand from `openspec list --json`
+   (present with work pending ⇒ proposed; `status: complete` ⇒ applied; absent ⇒
+   archived; per-change detail via `openspec status --change <id> --json`).
+3. **Lightly reconcile** any `drift:` the digest reports (e.g. the engine reports a
+   change archived but the plan still says `applied` — fix the plan). Leave deep
+   reconciliation to **validate**.
+4. **Take the position from the digest** — its `phase →` line is the first phase
+   not done, and within it the first carrying change not yet `archived`. (By hand:
+   same rule, respecting dependency order.)
+5. **Perform the next transition** — the digest's `next:` line names it — **always showing the action +
    the command you'll run, and confirming before real work or any decision:**
 
    | Change state | Transition | Mode |
@@ -181,14 +220,18 @@ Dispatch every engine handoff to a subagent by default (see **The engine seam**)
 ### validate — drift check (R3/R4)
 
 Reconcile the plan against real change state and report mismatches; fix only what
-the user approves. Check:
+the user approves. Run `node <skill-dir>/bin/plan-state.mjs --validate` — it emits
+the mismatches as `drift:` lines and exits nonzero when any exist, checking:
 - every `Carried by: <name>` resolves to a real change (active or archived);
 - every `[x]` phase's change is archived (not still active);
-- every archived change is reflected by a done (`[x]`) phase (no silent drift);
-- sources-of-truth links resolve.
+- every declared lifecycle state matches the engine's;
+- a done phase's change isn't still active, and an archived change's phase isn't
+  still open.
 
-This runs as an agent-driven check today (read `PLAN.md` + `openspec list`); a
-fast CLI is a future, optional addition.
+Report those lines and fix only what the user approves. If the script is
+unavailable, run the same checks by hand against `PLAN.md` + `openspec list
+--json`. Sources-of-truth links are a human judgment — eyeball the header's
+`Sources` line resolves.
 
 ## Guardrails
 

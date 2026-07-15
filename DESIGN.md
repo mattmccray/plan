@@ -232,11 +232,40 @@ resulting state, which the driver writes back into `PLAN.md`.
   / feature-requests found mid-flight; an issue may *graduate* into a phase or a
   change. That hand-off is a convention, not an integration.
 
+## The state script (read-only determinism layer)
+
+The deterministic read-side of the workflow — parse `PLAN.md`, join it against the
+declared engine's ground truth, classify each change's lifecycle, find the current
+position, compute the recommended next transition, and detect drift — is factored
+into a zero-dependency Node script, `skills/plan/bin/plan-state.mjs`. It prints a
+compact digest that the hot verbs (`status`, `next`, `validate`) consume instead
+of re-deriving state from a raw `cat PLAN.md` + `openspec list --json` on every
+call. This is the token-efficiency layer: the model reads a ~15-line digest, not
+the full file and JSON, and reasons about the *decision*, not the parse.
+
+Constraints that keep it faithful to the model:
+
+- **Read-only and advisory.** The script never edits `PLAN.md` or the engine. The
+  agent still owns every transition, every write, and every judgment (propose vs
+  explore, the one-line outcome, approving a drift fix). The digest is
+  ground-truthing, never a gate.
+- **Degrades gracefully.** Missing Node, a missing script, an absent engine, or an
+  unparseable plan all fall back to the agent-driven path (read the two sources
+  directly) — it never blocks the workflow.
+- **Forgiving parse.** It keys on the same light signals the prose rule allows
+  (header pairs, `## Phase` headings, checkbox states, `**Status:**`, `**Carried
+  by:** … — <state>`) and treats anything it can't parse as a soft warning.
+- **Cross-platform.** A single ES module invoked as `node …/plan-state.mjs`; no
+  shebang/exec-bit or shell-builtin dependence, CRLF-tolerant, so it runs on any
+  agent (Claude Code, Codex, OpenCode, Pi, Gemini) across macOS/Linux/Windows.
+- **Same seam.** It reads the engine from the plan header and maps it to a query
+  through a small registry (default OpenSpec) — the coupling stays in data.
+
 ## Non-goals / deferred
 
-- **No validator CLI yet.** `/plan:validate` runs as an agent-driven check
-  against `openspec list`. A fast/CI-able CLI is a later addition, not a
-  dependency.
+- **No write-side / mutating CLI.** The state script is read-only. Transitions and
+  edits stay agent-driven; a script that rewrites the plan's prose is deliberately
+  out of scope (it would cut against prose-first, forgiving parsing).
 - **No memory extraction here.** Durable project memory is brain's last remaining
   piece; it is orthogonal to Plan and is a separate future extraction.
 - **No multiple concurrent active plans.** Single active plan by default.

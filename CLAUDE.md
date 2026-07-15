@@ -10,8 +10,11 @@ packaged with an optional Claude Code plugin wrapper (`.claude-plugin/` +
 `commands/`) that adds the `/plan:*` slash commands. The skill is the product;
 the plugin is one distribution of it. Primary install is the `skills` CLI
 (`npx skills add mattmccray/plan`); Claude Code users can install the plugin
-instead for slash commands. There is no runtime, no dependencies, and no build
-step — everything is plain markdown plus two JSON manifests.
+instead for slash commands. There is no build step and no third-party
+dependencies — everything is plain markdown plus two JSON manifests, plus one
+zero-dependency Node script (`skills/plan/bin/plan-state.mjs`) that computes the
+read-only state digest the hot verbs consume. The script is optional: the workflow
+degrades to the agent-driven path when Node or the script is unavailable.
 
 The ratified model — vocabulary, discipline rules (R1–R7), artifact shape, and
 lifecycle — lives in [DESIGN.md](DESIGN.md). **DESIGN.md is the source of truth.**
@@ -33,6 +36,10 @@ drift.
   phase (it absorbed the old `advance`).
 - `skills/plan/templates/PLAN.md` — the prose template scaffolded into a consuming project by
   `/plan:create`.
+- `skills/plan/bin/plan-state.mjs` — the zero-dependency, read-only Node script
+  that parses `PLAN.md`, joins it against the engine, and prints the state digest
+  (`--validate` for drift, `--json` for machine output). `plan-state.test.mjs`
+  holds its hermetic `node --test` suite. Advisory only — it never writes.
 
 ## Conventions
 

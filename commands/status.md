@@ -7,10 +7,11 @@ skill: read `PLAN.md`, read change state, then report the current phase, each
 phase's state, the lifecycle state of each carrying change, and what's next.
 Surface any drift you notice but don't fix it unasked.
 
-## Active plan
+## Plan state digest
 
-!`test -f PLAN.md && head -40 PLAN.md || echo "No PLAN.md found. Run /plan:create to start one."`
+The `plan-state` script parses `PLAN.md` + the engine and prints a compact digest
+(current phase, per-phase and per-change states, the recommended next action, and
+any drift). Read it and report from it. If it's blank or errors, fall back to
+reading `PLAN.md` + `openspec list --json` yourself (see the skill's degradation rule).
 
-## Change engine state (OpenSpec)
-
-!`openspec list --json 2>/dev/null || echo "(openspec not available or no changes)"`
+!`node "${CLAUDE_PLUGIN_ROOT}/skills/plan/bin/plan-state.mjs" 2>/dev/null || echo "(plan-state unavailable — read PLAN.md + 'openspec list --json' directly)"`

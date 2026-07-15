@@ -23,10 +23,12 @@ skill — the stateful driver:
 5. **Persist** every transition to `PLAN.md` so the plan stays resumable. Record
    any **divergence** surfaced while landing.
 
-## Active plan
+## Plan state digest
 
-!`test -f PLAN.md && cat PLAN.md || echo "No PLAN.md found. Run /plan:create to start one."`
+The `plan-state` script has already done step 1's read+classify for you: it prints
+the current phase, each change's true lifecycle state, the **recommended next
+action + mode**, and any drift. Drive from its `next:` line. If it's blank or
+errors, fall back to reading `PLAN.md` + `openspec list --json` yourself (see the
+skill's degradation rule).
 
-## Change engine state (OpenSpec)
-
-!`openspec list --json 2>/dev/null || echo "(openspec not available or no changes)"`
+!`node "${CLAUDE_PLUGIN_ROOT}/skills/plan/bin/plan-state.mjs" 2>/dev/null || echo "(plan-state unavailable — read PLAN.md + 'openspec list --json' directly)"`
