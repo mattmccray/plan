@@ -2,7 +2,7 @@
 description: Show where the plan stands — current phase, phase states, carrying-change states, and what's next
 ---
 
-Report **Plan** status. Follow the **status** procedure in the `plan-workflow`
+Report **Plan** status. Follow the **status** procedure in the `plan`
 skill: read `PLAN.md`, read change state, then report the current phase, each
 phase's state, the lifecycle state of each carrying change, and what's next.
 Surface any drift you notice but don't fix it unasked.

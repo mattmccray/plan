@@ -3,7 +3,7 @@ description: Drift check — reconcile the plan's checkboxes against real change
 ---
 
 Validate the **Plan** against reality. Follow the **validate** procedure in the
-`plan-workflow` skill. Report mismatches; fix only what the user approves. Check:
+`plan` skill. Report mismatches; fix only what the user approves. Check:
 
 - every `Carried by: <name>` resolves to a real change (active or archived);
 - every `[x]` phase's change is archived (not still active);

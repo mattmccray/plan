@@ -42,7 +42,7 @@ loops through bookkeeping on its own and stops to confirm before real work,
 keeping `PLAN.md` in sync as it goes.
 
 You can also just talk to it — *"let's start a new plan"*, *"where are we?"*,
-*"what's next?"*, *"land this phase"* — and the `plan-workflow` skill routes to
+*"what's next?"*, *"land this phase"* — and the `plan` skill routes to
 the right procedure.
 
 ## Commands

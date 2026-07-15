@@ -3,7 +3,7 @@ description: Finalize a completed plan — move it to plans/archive/, optionally
 ---
 
 Archive the completed **Plan**. Follow the **archive** procedure in the
-`plan-workflow` skill:
+`plan` skill:
 
 1. Verify the plan is complete (all phases `[x]`, or remaining work explicitly
    accepted as out-of-scope).

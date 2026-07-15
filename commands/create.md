@@ -5,7 +5,7 @@ argument-hint: "[program name]"
 
 Start a new **Plan** for program: $ARGUMENTS
 
-Follow the **create** procedure in the `plan-workflow` skill. In short:
+Follow the **create** procedure in the `plan` skill. In short:
 
 1. **Guard the active plan.** If a `PLAN.md` already exists with unfinished
    phases, STOP and confirm: archive-and-carry-forward, archive-and-drop, or
@@ -15,7 +15,7 @@ Follow the **create** procedure in the `plan-workflow` skill. In short:
 3. **Draft coarse phases** (goal + acceptance + dependency order — no granular
    task lists; those belong to the carrying changes).
 4. **Write `PLAN.md`** from the template at
-   `${CLAUDE_PLUGIN_ROOT}/templates/PLAN.md`, with the header stamped (Status:
+   `${CLAUDE_PLUGIN_ROOT}/skills/plan/templates/PLAN.md`, with the header stamped (Status:
    active, Engine, Started date, sources of truth) and every carrying change
    marked "not yet proposed".
 

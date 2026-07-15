@@ -20,14 +20,14 @@ drift.
   commands as `plan:*`).
 - `.claude-plugin/marketplace.json` — makes this repo installable as its own
   marketplace (`source: "./"`).
-- `skills/plan-workflow/SKILL.md` — the single source of truth for behavior: the
+- `skills/plan/SKILL.md` — the single source of truth for behavior: the
   model + the procedures every command delegates to. Auto-triggers on
   plan-related natural language.
 - `commands/*.md` — five thin verbs (`create`, `status`, `next`, `archive`,
   `validate`) that inject context and delegate to the workflow skill. `next` is
   the stateful driver that carries the plan from change to change and phase to
   phase (it absorbed the old `advance`).
-- `templates/PLAN.md` — the prose template scaffolded into a consuming project by
+- `skills/plan/templates/PLAN.md` — the prose template scaffolded into a consuming project by
   `/plan:create`.
 
 ## Conventions
@@ -39,7 +39,7 @@ drift.
 - **Keep the seam.** Don't hard-code OpenSpec in the skill/commands; drive the
   engine the plan's header declares, defaulting to OpenSpec.
 - **`${CLAUDE_PLUGIN_ROOT}`** resolves to this plugin's install directory at
-  runtime — use it to locate `templates/PLAN.md`.
+  runtime — use it to locate `skills/plan/templates/PLAN.md`.
 
 ## Editing the skill or commands
 

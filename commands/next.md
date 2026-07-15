@@ -2,7 +2,7 @@
 description: The driver — carry the plan to its next state (propose/apply/archive a change, close a phase, advance)
 ---
 
-Drive the **Plan** forward. Follow the **next** procedure in the `plan-workflow`
+Drive the **Plan** forward. Follow the **next** procedure in the `plan`
 skill — the stateful driver:
 
 1. **Read state** from `PLAN.md` + the change engine via `openspec list --json`

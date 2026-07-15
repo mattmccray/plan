@@ -1,5 +1,5 @@
 ---
-name: plan-workflow
+name: plan
 description: The program/epic layer above a change-management workflow (OpenSpec by default). Use whenever the user works with a PLAN.md or talks about plans, phases, or the roadmap — starting/creating a new plan ("let's start a new plan"), checking plan status ("where are we?"), deciding what to build next ("what's next?"), advancing/landing a phase, archiving a completed plan, or validating that the plan matches reality. Carries the ubiquitous language (Plan → Phases → carried by → Changes), the discipline rules (R1–R7), the artifact shape, and the plan lifecycle. The `plan:*` commands delegate here.
 ---
 
@@ -8,8 +8,9 @@ description: The program/epic layer above a change-management workflow (OpenSpec
 You are operating the **Plan** layer: a coarse, resumable roadmap (`PLAN.md`) that
 sequences **Phases**, each **carried by** one or more **Changes**. Plan sits
 *above* the change engine (OpenSpec by default); it never duplicates a change's
-granular tasks. Read `DESIGN.md` in this plugin for the full rationale; this file
-is the operational guide.
+granular tasks. This file is the complete operational guide — everything you need
+to run the workflow is here. (When installed as the Plan plugin, `DESIGN.md` in the
+plugin repo holds the full rationale; it's optional background, not required to run.)
 
 ## Vocabulary (use exactly)
 
@@ -56,8 +57,9 @@ agent.
 
 - Active plan: `PLAN.md` at the repo root (the one well-known location).
 - Archived plans: `plans/archive/YYYY-MM-DD-<program>.md`.
-- The PLAN.md template ships with this plugin at
-  `${CLAUDE_PLUGIN_ROOT}/templates/PLAN.md`.
+- The PLAN.md template ships **alongside this skill** at `templates/PLAN.md`
+  (relative to this SKILL.md). When installed as the Plan plugin, the same file is
+  at `${CLAUDE_PLUGIN_ROOT}/skills/plan/templates/PLAN.md`.
 - Change state (OpenSpec): `openspec list --json`, and the
   `openspec/changes/` + `openspec/changes/archive/` directories.
 
@@ -83,7 +85,8 @@ next?" → **status** (to report) or **next** (to drive); "land this phase" /
    to write the file.
 3. **Draft coarse phases** — each with a goal, an acceptance bar, and dependency
    order. Coarse only (R1): no granular task lists.
-4. **Write `PLAN.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/PLAN.md`: fill the
+4. **Write `PLAN.md`** from the template bundled with this skill at
+   `templates/PLAN.md` (as the plugin: `${CLAUDE_PLUGIN_ROOT}/skills/plan/templates/PLAN.md`): fill the
    header (Program, Status: active, Engine, Started date, Sources of truth), list
    the phases, and mark every carrying change **not yet proposed**. State the
    cross-cutting invariants and the out-of-scope list.

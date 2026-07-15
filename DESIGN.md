@@ -100,7 +100,7 @@ These are what make the pattern work. They are the spec the skill enforces.
 ## PLAN.md anatomy
 
 A plan is **prose-first** — readable by a human with no tooling. The shape (see
-`templates/PLAN.md`) is:
+`skills/plan/templates/PLAN.md`) is:
 
 ```
    header ........... Program · Status · Engine · Started · Completed · Sources
@@ -171,7 +171,7 @@ the heavy lifting as a stateful driver:
 `/plan:next` absorbs what used to be two confusing verbs (`next` + `advance`):
 there is now one driver, not a *begin* verb and a *finish* verb that read alike.
 
-Natural language reaches the same procedures via the `plan-workflow` skill — e.g.
+Natural language reaches the same procedures via the `plan` skill — e.g.
 *"let's start a new plan"*, *"where are we?"*, *"what's next?"*, *"land this
 phase"* — so the commands are explicit doors, not the only way in.
 
